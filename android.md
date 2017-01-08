@@ -734,6 +734,9 @@ When defining methods, parameters should be ordered to the following convention:
 
 **Context** parameters always go first and **Callback** or **Listener** parameters always go last.
 
+#### Callback vs Listener
+Callback and Listener classes are typically inner classes within other classes. The name `Callback` should be used if there is more than one method to implement, and `Listener` if there is only one.
+
 #### 2.2.18 String constants, naming, and values
 
 When using string constants, they should be declared as final static and use the follow conventions:
