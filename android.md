@@ -12,8 +12,6 @@ These guidelines are derived from the original guidelines from [Buffer](https://
 
 When contributing work, the project should maintain the following structure:
 
-
-
 	src/androidTest
 	src/test
 	src/commonTest
@@ -58,11 +56,11 @@ This convention again makes it really easy to locate the specific layout file th
 
 Drawable resource files should be named using the **ic_** prefix along with the size and color of the asset. For example, white accept icon sized at 24dp would be named:
 
-	ic_accept_24dp_white
+	ic_accept_white_24dp
 
 And a black cancel icon sized at 48dp would be named:
 
-	ic_cancel_48dp_black
+	ic_cancel_black_48dp
 
 We use this naming convention so that a drawable file is recognisable by its name. If the colour and size are not stated in the name, then the developer needs to open the drawable file to find out this information. This saves us a little bit of time :)
 
@@ -102,14 +100,16 @@ When naming layout files, they should be named starting with the name of the And
 | Widget           | UserProfileView | view_user_profile |
 | AdapterView Item | N/A             | item_follower     |
 
-**Note:** If you create a layout using the merge tag then the layout_ prefix should be used.
+**Note:** If you create a layout using the merge tag then the `layout_` prefix should be used.
 
 Not only does this approach makes it easy to find files in the directory hierarchy, but it really helps when needing to identify what corresponding class a layout file belongs to.
 
 
 #### 1.2.2.3 Menu Files
 
-Menu files do not need to be prefixed with the menu_ prefix. This is because they are already in the menu package in the resources directory, so it is not a requirement.
+Menu files do not need to be prefixed with the `menu_` prefix. This is because they are already in the menu package in the resources directory, so it is not a requirement.
+
+Typically, menu items should be broken up into individual items, such as `search` which would be the search icon and label. This way, the activity can inflate the menu items conditionally and reuse the same menu items throughout the app if appropriate, as well as easily specify the order at runtime.
 
 #### 1.2.2.4 Values Files
 
@@ -179,7 +179,7 @@ Instead, catch the expected exception and handle it accordingly:
     	try {
         	context.startActivity(intent);
     	} catch (ActivityNotFoundException e) {
-        	Log.e(TAG, "There was an error opening the custom tab " + e);
+        	Timber.e(e, "There was an error opening the custom tab");
     	}
 	}
 
@@ -193,9 +193,9 @@ Where exceptions execute the same code, they should be grouped in-order to incre
     	try {
         	context.startActivity(intent);
     	} catch (ActivityNotFoundException e) {
-        	Log.e(TAG, "There was an error opening the custom tab " + e);
+        	Timber.e(e, "There was an error opening the custom tab");
     	} catch (NullPointerException e) {
-        	Log.e(TAG, "There was an error opening the custom tab " + e);
+        	Timber.e(e, "There was an error opening the custom tab");
     	} catch (SomeOtherException e) {
     		// Show some dialog
         }
@@ -208,7 +208,7 @@ You could do this:
     	try {
         	context.startActivity(intent);
     	} catch (ActivityNotFoundException e | NullPointerException e) {
-        	Log.e(TAG, "There was an error opening the custom tab " + e);
+        	Timber.e(e, "There was an error opening the custom tab");
     	} catch (SomeOtherException e) {
     		// Show some dialog
         }
@@ -295,18 +295,17 @@ That's much better!
 
 #### 2.2.1.2 View Field Naming
 
-When naming fields that reference views, the name of the view should be the last word in the name. For example:
+When naming fields that reference views, the a portion of the name of the view should be the first word in the name. For example:
 
 | View           | Name              |
 |----------------|-------------------|
-| TextView       | usernameView      |
-| Button         | acceptLoginView   |
-| ImageView      | profileAvatarView |
-| RelativeLayout | profileLayout     |
+| TextView       | textUsername      |
+| Button         | buttonAcceptLogin   |
+| ImageView      | imageProfileAvatar |
+| RelativeLayout | rootProfile    |
 
 We name views in this way so that we can easily identify what the field corresponds to. For example, having a field named **user** is extremely ambiguous - giving it the name usernameView, userAvatarView or userProfieLayout helps to make it clear  exactly what view the field corresponds with.
 
-Previously, the names for views often ended in the view type (e.g acceptLoginButton) but quite often views change and it's easy to forgot to go back to java classes and update variable names.
 
 #### 2.2.2 Avoid naming with container types
 
@@ -453,12 +452,9 @@ Not only is the extra line for the space not really necessary, but it makes bloc
 
 Sometimes it makes sense to use a single line for if statements. For example:
 
-    if (user == null) return false;
+    if (user == null)  { return false; }
 
-However, it only works for simple operations. Something like this would be better suited with braces:
-
-
-    if (user == null) throw new IllegalArgumentExeption("Oops, user object is required.");
+Braces should always be used, reguardless of if it is a single line or not, so that if a developer needs to add additional lines, subtle bugs are not included.
 
 #### 2.2.9.3 Nested if-conditions
 
@@ -539,17 +535,6 @@ Annotations that are applied to a method or class should always be defined in th
 
     }
 
-When using the annotations on fields, you should ensure that the annotation remains on the same line whilst there is room. For example:
-
-
-    @Bind(R.id.layout_coordinator) CoordinatorLayout coordinatorLayout;
-
-
-    @Inject MainPresenter mainPresenter;
-
-
-We do this as it makes the statement easier to read. For example, the statement '@Inject SomeComponent mSomeName' reads as 'inject this component with this name'.
-
 #### 2.2.11 Limit variable scope
 
 The scope of local variables should be kept to a minimum (Effective Java Item 29). By doing so, you increase the readability and maintainability of your code and reduce the likelihood of error. Each variable should be declared in the innermost block that encloses all uses of the variable.
@@ -578,31 +563,18 @@ Because we use Android Studio, so imports should always be ordered automatically
 
 #### 2.2.14 Logging
 
+Always use [Timber](https://github.com/JakeWharton/timber) for logging
+
 Logging should be used to log useful error messages and/or other information that may be useful during development.
 
 
 | Log                               | Reason      |
 |-----------------------------------|-------------|
-| Log.v(String tag, String message) | verbose     |
-| Log.d(String tag, String message) | debug       |
-| Log.i(String tag, String message) | information |
-| Log.w(String tag, String message) | warning     |
-| Log.e(String tag, String message) | error       |
-
-
-We can set the `Tag` for the log as a `static final` field at the top of the class, for example:
-
-
-    private static final String TAG = MyActivity.class.getName();
-
-All verbose and debug logs must be disabled on release builds. On the other hand - information, warning and error logs should only be kept enabled if deemed necessary.
-
-
-    if (BuildConfig.DEBUG) {
-        Log.d(TAG, "Here's a log message");
-    }
-
-**Note:** Timber is the preferred logging method to be used. It handles the tagging for us, which saves us keeping a reference to a TAG.
+| Timber.v(String message) | verbose     |
+| Timber.d(String message) | debug       |
+| Timber.i(String message) | information |
+| Timber.w(String message) | warning     |
+| Timber.e(String message) | error       |
 
 #### 2.2.15 Field Ordering
 
@@ -611,9 +583,9 @@ Any fields declared at the top of a class file should be ordered in the followin
 1. Enums
 2. Constants
 3. Dagger Injected fields
-4. Butterknife View Bindings
-5. private global variables
-6. public global variables
+4. ButterKnife View Bindings
+5. View related variables (private first)
+6. Other variables (private first)
 
 For example:
 
@@ -624,10 +596,14 @@ For example:
 	public static final String KEY_NAME = "KEY_NAME";
 	public static final int COUNT_USER = 0;
 
-	@Inject SomeAdapter someAdapter;
+	@Inject SomeThing someThing;
 
-	@BindView(R.id.text_name) TextView nameText;
-	@BindView(R.id.image_photo) ImageView photoImage;
+	@BindView(R.id.text_name)
+	TextView textName;
+	@BindView(R.id.image_photo)
+	ImageView imagePhoto;
+
+	private MessageAdapter adapterMessage;
 
 	private int userCount;
 	private String errorMessage;
@@ -656,9 +632,11 @@ For example:
 
     public class MainActivity extends Activity {
 
-        private int count;
+				private static int REQUEST_PHOTO = 1;
 
-        public static newInstance() { }
+        public static newIntent(Context context) { }
+
+				private int count;
 
         @Override
         public void onCreate() { }
@@ -705,6 +683,46 @@ Any lifecycle methods used in Android framework classes should be ordered in the
 
     }
 
+and for fragments (not all events included, just the typical ones):
+
+	public class MainFragment extends Fragment {
+
+			// Field and constructors
+
+			@Override
+			public void onAttach() { }
+
+			@Override
+			public void onCreate() { }
+
+			@Override
+			public void onCreateView() { }
+
+			@Override
+			public void onViewCreated() { }
+
+			@Override
+			public void onStart() { }
+
+			@Override
+			public void onResume() { }
+
+			@Override
+			public void onPause() { }
+
+			@Override
+			public void onStop() { }
+
+			@Override
+			public void onDestroyView() { }
+
+			@Override
+			public void onDestroy() { }
+
+			// public methods, private methods, inner classes and interfaces
+
+	}
+
 #### 2.2.17 Method parameter ordering
 
 When defining methods, parameters should be ordered to the following convention:
@@ -714,7 +732,7 @@ When defining methods, parameters should be ordered to the following convention:
 
     public void loadPost(Context context, int postId, Callback callback);
 
-**Context** parameters always go first and **Callback** parameters always go last.
+**Context** parameters always go first and **Callback** or **Listener** parameters always go last.
 
 #### 2.2.18 String constants, naming, and values
 
@@ -743,25 +761,18 @@ Do this:
 
 When we pass data using an Intent or Bundle, the keys for the values must use the conventions defined below:
 
-**Activity**
+**Activity or Fragment**
 
 Passing data to an activity must be done using a reference to a KEY, as defined as below:
 
 
-    private static final String KEY_NAME = "com.your.package.name.to.activity.KEY_NAME";
-
-**Fragment**
-
-Passing data to a fragment must be done using a reference to an EXTRA, as defined as below:
-
-
-    private static final String EXTRA_NAME = "EXTRA_NAME";
+    private static final String KEY_NAME = "some_key";
 
 When creating new instances of a fragment or activity that involves passing data, we should provide a static method to retrieve the new instance, passing the data as method parameters. For example:
 
 **Activity**
 
-    public static Intent getStartIntent(Context context, Post post) {
+    public static Intent newIntent(Context context, Post post) {
         Intent intent = new Intent(context, CurrentActivity.class);
         intent.putParcelableExtra(EXTRA_POST, post);
         return intent;
@@ -951,12 +962,11 @@ This makes sectioned methods easier to located in a class.
 
 String resources defined within the string.xml file should be section by feature, for example:
 
-
-    // User Profile Activity
+    <!--User Profile Activity-->
     <string name="button_save">Save</string>
     <string name="button_cancel">Cancel</string>
 
-    // Settings Activity
+    <!--Settings Activity-->
     <string name="message_instructions">...</string>
 
 Not only does this help keep the strings file tidy, but it makes it easier to find strings when they need altering.
@@ -999,7 +1009,7 @@ Do this:
 
 
     @OnClick(R.id.button_submit)
-    public void onSubmitButtonClick() { }
+    void onSubmitButtonClick() { }
 
 
 ## 2.3 XML Style Rules
@@ -1043,7 +1053,7 @@ All IDs should be prefixed using the name of the element that they have been dec
 |----------------|-----------|
 | ImageView      | image_    |
 | Fragment       | fragment_ |
-| RelativeLayout | layout_   |
+| RelativeLayout | root_   |
 | Button         | button_   |
 | TextView       | text_     |
 | View           | view_     |
