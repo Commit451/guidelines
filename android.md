@@ -107,7 +107,7 @@ Not only does this approach makes it easy to find files in the directory hierarc
 
 #### 1.2.2.3 Menu Files
 
-Menu files do not need to be prefixed with the `menu_` prefix. This is because they are already in the menu package in the resources directory, so it is not a requirement.
+Menu files do **not** need to be prefixed with the `menu_` prefix. This is because they are already in the menu package in the resources directory, so it is not a requirement.
 
 Typically, menu items should be broken up into individual items, such as `search` which would be the search icon and label. This way, the activity can inflate the menu items conditionally and reuse the same menu items throughout the app if appropriate, as well as easily specify the order at runtime.
 
@@ -584,7 +584,7 @@ Any fields declared at the top of a class file should be ordered in the followin
 2. Constants
 3. Dagger Injected fields
 4. ButterKnife View Bindings
-5. View related variables (private first)
+5. View related variables, such as adapters, layout managers (private first)
 6. Other variables (private first)
 
 For example:
@@ -753,9 +753,14 @@ Instead of this:
 
 Do this:
 
+		@Retention(SOURCE)
+  	@IntDef({VALUE_ONE, VALUE_TWO, VALUE_THREE})
+  	public @interface Values {}
     private static final int VALUE_ONE = 1;
     private static final int VALUE_TWO = 2;
     private static final int VALUE_THREE = 3;
+
+See more on [IntDefs](https://developer.android.com/reference/android/support/annotation/IntDef.html)
 
 #### 2.2.20 Arguments in fragments and activities
 
@@ -764,7 +769,6 @@ When we pass data using an Intent or Bundle, the keys for the values must use th
 **Activity or Fragment**
 
 Passing data to an activity must be done using a reference to a KEY, as defined as below:
-
 
     private static final String KEY_NAME = "some_key";
 
@@ -1011,6 +1015,99 @@ Do this:
     @OnClick(R.id.button_submit)
     void onSubmitButtonClick() { }
 
+### 2.2.26 RecyclerView
+
+`RecyclerView` should be used everywhere we want a list of items to show. If it is not possible to use a RecyclerView, an [AdapterLayout](https://github.com/Commit451/AdapterLayout) should be considered instead.
+
+### 2.2.26.1 ViewHolder
+View holders should be defined in their own class. They should be strictly responsible for binding their corresponding data. ViewHolders should also contain a static method for inflation, so that they do not get inflated with the wrong layout id:
+
+```java
+public class EntryViewHolder extends RecyclerView.ViewHolder {
+
+    public static EntryViewHolder inflate(ViewGroup parent) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_entry, parent, false);
+        return new EntryViewHolder(view);
+    }
+
+    @BindView(R.id.title)
+    TextView textTitle;
+    @BindView(R.id.description)
+    TextView textSummary;
+
+    public FeedEntryViewHolder(View view) {
+        super(view);
+        ButterKnife.bind(this, view);
+				//one time things if needed here
+    }
+
+    public void bind(Entry entry) {
+        textTitle.setText(Html.fromHtml(entry.getTitle()));
+        textSummary.setText(Html.fromHtml(entry.getSummary()));
+    }
+}
+```
+
+### 2.2.26.2 Adapter
+Adapters should be named according to the data that they bind if possible, such as `MessageAdapter`. If need be, they can be more specific, such as `FacebookMessageAdapter`. Notice that the adapter type is singular, so it is **not** named `MessagesAdapter`
+
+The adapter should be the place where we listen for click events. For example:
+
+```java
+public class EntryAdapter extends RecyclerView.Adapter<EntryViewHolder> {
+
+	Listener listener;
+	ArrayList<Entry> values;
+
+	public EntryAdapter(Listener listener) {
+			this.listener = listener;
+			values = new ArrayList<>();
+	}
+
+	@Override
+	public FeedEntryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			final FeedEntryViewHolder holder = FeedEntryViewHolder.inflate(parent);
+			holder.itemView.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+							int position = holder.getAdapterPosition();
+							listener.onFeedEntryClicked(getEntry(position));
+					}
+			});
+			return holder;
+	}
+
+	@Override
+	public void onBindViewHolder(final FeedEntryViewHolder holder, int position) {
+			holder.bind(getEntry(position));
+	}
+
+	@Override
+	public int getItemCount() {
+			return values.size();
+	}
+
+	//this could be smarter and use notifyItemInserted and the like to allow
+	//for better animation
+	public void setEntries(Collection<Entry> entries) {
+			values.clear();
+			if (entries != null) {
+					values.addAll(entries);
+			}
+			notifyDataSetChanged();
+	}
+
+	//Typically, we wrap like this in case we have headers and footers to account for
+	private Entry getEntry(int position) {
+			return values.get(position);
+	}
+
+	public interface Listener {
+			void onEntryClicked(Entry entry);
+	}
+}
+```
 
 ## 2.3 XML Style Rules
 
