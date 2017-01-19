@@ -55,20 +55,20 @@ if (feedFragment == null) {
 ```
 
 ## Extensions
-Extensions are great! Avoiding Util classes is great! The standard for now is to declare extensions for a class in a file with the convention of `<ClassName>Extensions.kt` For example, all `Activity` extensions should be in a file `ActivityExtensions` so that it is obvious and easy to find where the extensions is coming from.
+Extensions are great! Avoiding Util classes is great! The standard for now is to declare extensions for a class in a file with the convention of `<ClassName>Extensions.kt` For example, all `Activity` extensions should be in a file `ActivityExtensions` so that it is obvious and easy to find where the extensions is coming from. In the same reasoning, you should avoid placing extensions for other classes in the same file if they are for an unreleted class. 
 
 This rule does not apply for library projects, as all extensions will probably just be within the same `extensions.kt` file.
 
 ## Avoiding interfaces for Listeners
 As of yet, Kotlin does not support SAM-conversions for Kotlin. SAM-conversions only work for Java methods. Which is why you can do things like:
 ```kotlin
-stepperAdults.setOnClickListener { 
+stepper.setOnClickListener { 
 	//do things            
 }
 ```
 but for a Kotlin defined interface, you would have to do:
 ```kotlin
-stepperAdults.setOnClickListener(object : View.OnClickListener {
+stepper.setOnClickListener(object : View.OnClickListener {
     override fun onClick(v: View?) {
 	//do things
     }
