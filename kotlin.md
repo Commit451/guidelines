@@ -89,3 +89,10 @@ stepper.setOnStepListener { count ->
 	//do something
 }
 ```
+
+## Ternary Operators
+Since Kotlin has no such thing as Ternary operators `a ? b : c`, instead you can just do `if-else` flow all in one line:
+```kotlin
+view.visibility = if (loggedIn) View.VISIBLE else View.GONE
+```
+Keep in mind that if the flow extends beyond a simple assignment, you should use actual `if-else` flow on multiple lines.
