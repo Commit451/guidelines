@@ -55,9 +55,12 @@ if (feedFragment == null) {
 ```
 
 ## Extensions
-Extensions are great! Avoiding Util classes is great! The standard for now is to declare extensions for a class in a file with the convention of `<ClassName>Extensions.kt` For example, all `Activity` extensions should be in a file `ActivityExtensions` so that it is obvious and easy to find where the extensions is coming from. In the same reasoning, you should avoid placing extensions for other classes in the same file if they are for an unreleted class. 
+Extensions are great! Avoiding Util classes is great! The standard for now is to declare extensions for a class in a file with the convention of `<ClassName>.kt` within a package called `extension`. This file should only contain extension methods for the class the name correstponds to. 
 
 This rule does not apply for library projects, as all extensions will probably just be within the same `extensions.kt` file.
+
+### Data Classes + Extensions
+If you have a model that acts just as a data holder, such as a model from an API, you should avoid putting custom methods in this classes, and instead add them as extensions. This easily seperates the model and its data from custom business logic.
 
 ## Avoiding interfaces for Listeners
 As of yet, Kotlin does not support SAM-conversions for Kotlin. SAM-conversions only work for Java methods. Which is why you can do things like:
