@@ -118,7 +118,7 @@ val currentUser = user
 if (currentUser != null)
 //.. etc
 ```
-2. Run block
+2. let block
 If you only care about is doing something in the non-null case, you can do a `let` block:
 ```kotlin
 user?.let {
@@ -126,3 +126,6 @@ user?.let {
 }
 ```
 Notice the user of `it` in this case to refer to the non null variable.
+
+## Don't Use Anko
+[Anko](https://github.com/Kotlin/anko) looks great at a glance, but due to the lack of support for things like [using XML styles within the Anko DSL](https://github.com/Kotlin/anko/issues/16), it should be avoided.
