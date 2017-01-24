@@ -119,7 +119,7 @@ if (currentUser != null)
 //.. etc
 ```
 2. Run block
-If you only care about is doing something in the non-null case, you can do a `run` block:
+If you only care about is doing something in the non-null case, you can do a `let` block:
 ```kotlin
 user?.let {
 	println(it.name)
