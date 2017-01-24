@@ -99,3 +99,30 @@ Since Kotlin has no such thing as Ternary operators `a ? b : c`, instead you can
 view.visibility = if (loggedIn) View.VISIBLE else View.GONE
 ```
 Keep in mind that if the flow extends beyond a simple assignment, you should use actual `if-else` flow on multiple lines.
+
+## Null Checks
+If you have a block of code where you do one thing if the value is null, and another thing if not null, you will likely need to create another refrence to that variable. For example:
+```kotlin
+if (user != null) {
+	//IDE will give you an error about the potential of user to be null here
+	println(user.name)
+} else {
+	println("no user found")
+}
+```
+This is due to the fact that between the null check and the code within the if, user could be reassigned to null. There are a few solutions to this.
+1. Reassignment to val
+```kotlin
+//rename to a different variable name
+val currentUser = user
+if (currentUser != null)
+//.. etc
+```
+2. Run block
+If you only care about is doing something in the non-null case, you can do a `run` block:
+```kotlin
+user?.run {
+	println(it.name)
+}
+```
+Notice the user of `it` in this case to refer to the non null variable.
