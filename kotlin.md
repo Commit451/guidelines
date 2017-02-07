@@ -111,14 +111,14 @@ if (user != null) {
 }
 ```
 This is due to the fact that between the null check and the code within the if, user could be reassigned to null. There are a few solutions to this.
-1. Reassignment to val
+- Reassignment to val
 ```kotlin
 //rename to a different variable name
 val currentUser = user
 if (currentUser != null)
 //.. etc
 ```
-2. let block
+- `let` block
 If you only care about is doing something in the non-null case, you can do a `let` block:
 ```kotlin
 user?.let {
