@@ -1,15 +1,14 @@
 # Kotlin Guidelines
 ---------------------------
 
-The Kotlin guidelines build off of the Android guidelines. Read those first.
+The Kotlin guidelines build off of the official [Android Kotlin style guide](https://android.github.io/kotlin-guides/style.html). Read it first.
 
 ## lateinit + ButterKnife
-We use `lateinit` to get around null safety checks in Kotlin. It would look like this:
+We use `lateinit` to get around null safety checks for views in Kotlin. It would look like this:
 
 ```kotlin
 @BindView(R.id.toolbar) lateinit var toolbar: Toolbar
 ```
-Note that we allow single line initialization here unlike in the Android Java guidelines due to the fact that the Kotlin formatter allows this.
 
 ## companion object
 In order to still allow for static instance methods for `Activity`s and `Fragment`s, we use a companion object:
@@ -55,7 +54,7 @@ if (feedFragment == null) {
 ```
 
 ## Extensions
-Extensions are great! Avoiding Util classes is great! The standard for now is to declare extensions for a class in a file with the convention of `<ClassName>.kt` within a package called `extension`. This file should only contain extension methods for the class the name correstponds to. 
+Extensions are great! Avoiding Util classes is great! The standard for now is to declare extensions for a class in a file with the convention of `<ClassName>.kt` within a package called `extension`. This file should only contain extension methods for the class the name correstponds to. For example, extensions of the `View` class would go within `com.commit451.extensions.View.kt`
 
 This rule does not apply for library projects, as all extensions will probably just be within the same `extensions.kt` file.
 
@@ -63,7 +62,7 @@ This rule does not apply for library projects, as all extensions will probably j
 If you have a model that acts just as a data holder, such as a model from an API, you should avoid putting custom methods in this classes, and instead add them as extensions. This easily seperates the model and its data from custom business logic.
 
 ## Avoiding interfaces for Listeners
-As of yet, Kotlin does not support SAM-conversions for Kotlin. SAM-conversions only work for Java methods. Which is why you can do things like:
+By choice or otherwise, Kotlin does not support SAM-conversions for Kotlin. SAM-conversions only work for Java methods. Which is why you can do things like:
 ```kotlin
 stepper.setOnClickListener { 
 	//do things            
@@ -127,5 +126,5 @@ user?.let {
 ```
 Notice the user of `it` in this case to refer to the non null variable.
 
-## Don't Use Anko
-[Anko](https://github.com/Kotlin/anko) looks great at a glance, but due to the lack of support for things like [using XML styles within the Anko DSL](https://github.com/Kotlin/anko/issues/16), it should be avoided.
+## Don't Use Anko DSL
+[Anko](https://github.com/Kotlin/anko) looks great at a glance, but due to the lack of support for things like [using XML styles within the Anko DSL](https://github.com/Kotlin/anko/issues/16), it should be avoided. It also lacks preview support, requires more work to be compatible with `AppCompat`, and is not as easily copy/pasteable as XML.
